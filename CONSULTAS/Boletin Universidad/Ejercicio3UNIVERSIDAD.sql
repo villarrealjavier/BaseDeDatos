@@ -1,0 +1,256 @@
+Create table titulacion (
+Idtitulacion varchar2(6) primary key,
+Nombre varchar2(30)
+);
+
+
+Create table persona (
+dni varchar2(11) primary key,
+Nombre varchar2(30),
+Apellido varchar2(30),
+Ciudad varchar2(15),
+Direccioncalle varchar2(30),
+Direccionnum number,
+Telefono varchar2(9),
+Fecha_nacimiento date,
+Varon number
+);
+
+
+
+create table alumno (
+idalumno varchar2(7) primary key,
+dni varchar2(11),
+foreign key (dni) references persona(dni)
+);
+
+Create table profesor (
+Idprofesor varchar2(4) primary key,
+Dni varchar2(11),
+Foreign key(dni) references persona(dni)
+);
+
+Create table asignatura (
+Idasignatura varchar2(6) primary key,
+Nombre varchar2(20),
+Creditos number,
+Cuatrimestre number,
+Costebasico number,
+Idprofesor varchar2(4),
+Idtitulacion varchar2(6),
+Curso number,
+Foreign key(idprofesor) references profesor(idprofesor),
+Foreign key (idtitulacion) references titulacion(idtitulacion)
+);
+
+Create table  alumno_asignatura (
+Idalumno varchar2(7),
+Idasignatura varchar2(6),
+Numeromatricula number,
+  PRIMARY KEY(idalumno,idasignatura,numeromatricula),
+Foreign key(idalumno) references alumno(idalumno),
+Foreign key(idasignatura) references asignatura(idasignatura)
+);
+
+
+insert into persona values ('16161616A','Luis','Ramirez','Haro','Pez','34','941111111',to_date('1/1/1969','dd/mm/yyyy'),'1');
+insert into persona values ('17171717A','Laura','Beltran','Madrid','Gran Va','23','912121212',to_date('8/8/1974','dd/mm/yyyy'),'0');
+insert into persona values ('18181818A','Pepe','Perez','Madrid','Percebe','13','913131313',to_date('2/2/1980','dd/mm/yyyy'),'1');
+insert into persona values ('19191919A','Juan','Sanchez','Bilbao','Melancola','7','944141414',to_date('3/2/1966','dd/mm/yyyy'),'1');
+insert into persona values ('20202020A','Luis','Jimenez','Najera','Cigea','15','941151515',to_date('3/3/1979','dd/mm/yyyy'),'1');
+insert into persona values ('21212121A','Rosa','Garcia','Haro','Alegra','16','941161616',to_date('4/4/1978','dd/mm/yyyy'),'0');
+insert into persona values ('23232323A','Jorge','Saenz','Sevilla','Luis Ulloa','17','941171717',to_date('9/9/1978','dd/mm/yyyy'),'1');
+insert into persona values ('24242424A','Mara','Gutierrez','Sevilla','Avda. de la Paz','18','941181818',to_date('10/10/1964','dd/mm/yyyy'),'0');
+insert into persona values ('25252525A','Rosario','Diaz','Sevilla','Percebe','19','941191919',to_date('11/11/1971','dd/mm/yyyy'),'0');
+insert into persona values ('26262626A','Elena','Gonzalez','Sevilla','Percebe','20','941202020',to_date('5/5/1975','dd/mm/yyyy'),'0');
+
+
+insert into alumno values ('A010101','21212121A');
+insert into alumno values ('A020202','18181818A');
+insert into alumno values ('A030303','20202020A');
+insert into alumno values ('A040404','26262626A');
+insert into alumno values ('A121212','16161616A');
+insert into alumno values ('A131313','17171717A');
+
+
+insert into profesor values ('P101','19191919A');
+insert into profesor values ('P117','25252525A');
+insert into profesor values ('P203','23232323A');
+insert into profesor values ('P204','26262626A');
+insert into profesor values ('P304','24242424A');
+
+
+insert into titulacion values ('130110','Matematicas');
+insert into titulacion values ('150210','Quimicas');
+insert into titulacion values ('160000','Empresariales');
+
+
+insert into asignatura values ('000115','Seguridad Vial','4','1','30 ','P204',null,null);
+insert into asignatura values ('130113','Programacion I', '9','1','60 ','P101','130110','1');
+insert into asignatura values ('130122','Analisis II',    '9','2','60 ','P203','130110','2');
+insert into asignatura values ('150212','Quimica Fisica','4','2','70','P304','150210','1');
+insert into asignatura values ('160002','Contabilidad','6','1','70','P117','160000','1');
+
+
+insert into alumno_asignatura values('A010101','150212','1');
+insert into alumno_asignatura values('A020202','130113','1');
+insert into alumno_asignatura values('A020202','150212','2');
+insert into alumno_asignatura values('A030303','130113','3');
+insert into alumno_asignatura values('A030303','150212','1');
+insert into alumno_asignatura values('A030303','130122','2');
+insert into alumno_asignatura values('A040404','130122','1');
+insert into alumno_asignatura values('A121212','000115','1');
+insert into alumno_asignatura values('A131313','160002','4');
+
+
+--EJ1
+SELECT COUNT(ASIGNATURA.COSTEBASICO) FROM ASIGNATURA;
+
+--EJ2
+SELECT COUNT(ASIGNATURA.IDASIGNATURA),(TITULACION.NOMBRE)
+FROM TITULACION, ASIGNATURA
+WHERE TITULACION.IDTITULACION = ASIGNATURA.IDTITULACION
+GROUP BY TITULACION.NOMBRE;
+
+
+--EJ3
+SELECT TITULACION.NOMBRE,SUM(ASIGNATURA.COSTEBASICO)
+FROM TITULACION,ASIGNATURA WHERE TITULACION.IDTITULACION = ASIGNATURA.IDTITULACION 
+GROUP BY TITULACION.NOMBRE;
+
+
+--EJ4
+SELECT TITULACION.NOMBRE, (ASIGNATURA.COSTEBASICO*0.07)+ASIGNATURA.COSTEBASICO
+FROM TITULACION, ASIGNATURA WHERE TITULACION.IDTITULACION = ASIGNATURA.IDTITULACION AND TITULACION.NOMBRE='Matematicas';
+
+--EJ5
+SELECT COUNT(ALUMNO_ASIGNATURA.IDALUMNO), ASIGNATURA.IDASIGNATURA FROM ALUMNO_ASIGNATURA,ASIGNATURA,ALUMNO 
+WHERE ALUMNO_ASIGNATURA.IDASIGNATURA = ASIGNATURA.IDASIGNATURA
+GROUP BY ASIGNATURA.IDASIGNATURA;
+
+--EJ6
+SELECT COUNT(ALUMNO_ASIGNATURA.IDALUMNO), ASIGNATURA.IDASIGNATURA,ASIGNATURA.NOMBRE FROM ALUMNO_ASIGNATURA,ASIGNATURA 
+WHERE ALUMNO_ASIGNATURA.IDASIGNATURA = ASIGNATURA.IDASIGNATURA
+GROUP BY ASIGNATURA.IDASIGNATURA,ASIGNATURA.NOMBRE;
+
+--EJ7
+SELECT p.NOMBRE,SUM(a2.COSTEBASICO*(0.10*aa.NUMEROMATRICULA) + a2.COSTEBASICO)  
+FROM ALUMNO a,ASIGNATURA a2,PERSONA p, ALUMNO_ASIGNATURA aa 
+WHERE p.DNI = a.DNI AND a.IDALUMNO = aa.IDALUMNO AND a2.IDASIGNATURA = aa.IDASIGNATURA
+GROUP BY p.NOMBRE;
+
+--EJ8
+SELECT * FROM ASIGNATURA;
+
+SELECT AVG(ASIGNATURA.COSTEBASICO) FROM ASIGNATURA,TITULACION,ALUMNO_ASIGNATURA
+WHERE TITULACION.IDTITULACION = ASIGNATURA.IDTITULACION AND ALUMNO_ASIGNATURA.NUMEROMATRICULA=1 AND ASIGNATURA.COSTEBASICO>60;
+
+--EJ9
+SELECT * FROM TITULACION;
+SELECT * FROM ALUMNO_ASIGNATURA;
+SELECT * FROM ASIGNATURA;
+SELECT TITULACION.NOMBRE FROM TITULACION,ASIGNATURA,ALUMNO_ASIGNATURA,ALUMNO WHERE TITULACION.IDTITULACION =ASIGNATURA.IDTITULACION 
+AND ASIGNATURA.IDASIGNATURA =ALUMNO_ASIGNATURA.IDASIGNATURA 
+AND ALUMNO_ASIGNATURA.IDALUMNO = ALUMNO.IDALUMNO
+GROUP BY TITULACION.NOMBRE 
+HAVING COUNT(ALUMNO.IDALUMNO)>3;
+;
+
+--EJ10;
+SELECT PERSONA.CIUDAD, COUNT(PERSONA.DNI)
+FROM PERSONA
+GROUP BY PERSONA.CIUDAD;
+
+--EJ11
+SELECT PERSONA.NOMBRE, COUNT(ASIGNATURA.IDASIGNATURA) 
+FROM PROFESOR,ASIGNATURA,PERSONA
+WHERE PROFESOR.IDPROFESOR =ASIGNATURA.IDPROFESOR AND PROFESOR.DNI = PERSONA.DNI
+GROUP BY PERSONA.NOMBRE;
+
+--EJ12
+
+SELECT PERSONA.NOMBRE,COUNT(ALUMNO.IDALUMNO) 
+FROM PERSONA,PROFESOR,ASIGNATURA,ALUMNO
+WHERE PERSONA.DNI =PROFESOR.DNI 
+AND PROFESOR.IDPROFESOR =ASIGNATURA.IDPROFESOR 
+GROUP BY PERSONA.NOMBRE
+HAVING COUNT(ALUMNO.IDALUMNO)>2;
+
+--EJ13
+SELECT MAX(SUM(ASIGNATURA.COSTEBASICO)/ASIGNATURA.CUATRIMESTRE)
+FROM ASIGNATURA
+GROUP BY ASIGNATURA.CUATRIMESTRE;
+
+--EJ14
+SELECT SUM(COSTEBASICO)
+FROM ASIGNATURA;
+
+--EJ15
+SELECT COUNT(IDASIGNATURA)
+FROM ASIGNATURA;
+
+--EJ16
+SELECT MAX(COSTEBASICO),MIN(COSTEBASICO) FROM ASIGNATURA;
+
+--EJ17:
+SELECT COUNT(CREDITOS),CREDITOS
+FROM ASIGNATURA
+GROUP BY CREDITOS;
+
+--EJ18
+SELECT COUNT(CURSO) FROM ASIGNATURA;
+
+--EJ19
+SELECT * FROM PERSONA;
+SELECT COUNT(CIUDAD) FROM PERSONA;
+
+--EJ20
+SELECT * FROM ASIGNATURA;
+SELECT NOMBRE,CREDITOS*10 AS HORAS
+FROM ASIGNATURA;
+
+--EJ21
+SELECT ASIGNATURA.NOMBRE,TITULACION.NOMBRE
+FROM ASIGNATURA,TITULACION WHERE ASIGNATURA.IDTITULACION IS NULL;
+
+--EJ22
+SELECT PERSONA.NOMBRE AS NOMBRECOMPLETO,PERSONA.TELEFONO,PERSONA.DIRECCIONCALLE AS DIRECCION 
+FROM PERSONA;
+
+--EJ23
+SELECT (EXTRACT(DAY FROM PERSONA.FECHA_NACIMIENTO)+1), PERSONA.NOMBRE FROM PERSONA;
+
+--EJ24
+SELECT (EXTRACT(YEAR FROM SYSDATE)), EXTRACT(YEAR FROM PERSONA.FECHA_NACIMIENTO) FROM PERSONA;
+
+--EJ25
+SELECT * FROM PERSONA;
+SELECT PERSONA.NOMBRE,PERSONA.APELLIDO FROM PERSONA
+WHERE (EXTRACT(YEAR FROM SYSDATE)-EXTRACT(YEAR FROM PERSONA.FECHA_NACIMIENTO))<1997 ;
+
+--EJ26
+SELECT PERSONA.NOMBRE,PERSONA.APELLIDO 
+FROM PERSONA,ALUMNO,PROFESOR
+WHERE PERSONA.DNI=ALUMNO.DNI 
+AND PERSONA.DNI=PROFESOR.DNI;
+
+--EJ27
+SELECT SUM(ASIGNATURA.CREDITOS) FROM ASIGNATURA,TITULACION 
+WHERE TITULACION.IDTITULACION =ASIGNATURA.IDTITULACION AND TITULACION.NOMBRE ='Matematicas';
+
+--EJ28
+SELECT COUNT(ASIGNATURA.IDASIGNATURA) FROM ASIGNATURA,TITULACION WHERE TITULACION.NOMBRE ='Matematicas';
+
+--EJ29
+SELECT ASIGNATURA.COSTEBASICO, PERSONA.NOMBRE  FROM ASIGNATURA, ALUMNO,ALUMNO_ASIGNATURA,PERSONA
+WHERE ASIGNATURA.IDASIGNATURA  =ALUMNO_ASIGNATURA.IDASIGNATURA  
+AND ALUMNO_ASIGNATURA.IDALUMNO = ALUMNO.IDALUMNO
+AND ALUMNO.DNI=PERSONA.DNI;
+
+--EJ30
+SELECT COUNT(ALUMNO_ASIGNATURA.IDALUMNO) FROM ALUMNO_ASIGNATURA,ASIGNATURA 
+WHERE ALUMNO_ASIGNATURA.IDASIGNATURA = ASIGNATURA.IDASIGNATURA
+GROUP BY ASIGNATURA.IDASIGNATURA;
+
+
+
