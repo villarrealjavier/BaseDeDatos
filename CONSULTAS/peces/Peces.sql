@@ -4072,12 +4072,11 @@ ORDER BY PEZ, PESO DESC, TALLA DESC;
 --3 Obtener los nombres y apellidos de los afiliados que o bien tienen la 
 --licencia de pesca que comienzan con una A (mayúscula o minúscula), o bien el teléfono empieza en 9 y la dirección comienza en Avda.
 SELECT a.NOMBRE,a.APELLIDOS 
-FROM AFILIADOS a, PERMISOS p, LICENCIAS l
+FROM AFILIADOS a, PERMISOS p
 WHERE a.FICHA= p.FICHA 
-AND l.LICENCIA=p.LICENCIA 
-AND (UPPER(l.LICENCIA) LIKE 'A%'
-OR l.LICENCIA LIKE '9%')
-AND LOWER(a.DIRECCION) LIKE 'avda%';
+AND UPPER(p.LICENCIA) LIKE 'A%'
+OR (p.LICENCIA LIKE '9%'
+AND LOWER(a.DIRECCION) LIKE 'avda%');
 
 --4 Lugares del cauce “Rio Genil” que en el campo de observaciones no tengan valor.
 SELECT l.LUGAR 
@@ -4091,13 +4090,16 @@ SELECT a.NOMBRE,a.APELLIDOS,a.FICHA
 FROM AFILIADOS a, CAPTURASSOLOS c 
 WHERE c.AVAL1 = a.FICHA;
 
+SELECT a.NOMBRE,a.APELLIDOS,a.FICHA 
+FROM AFILIADOS a JOIN CAPTURASSOLOS c 
+ON c.AVAL1 = a.FICHA;
 --6 Obtén los cauces y en qué lugar de ellos han encontrado tencas (tipo de pez) 
 --cuando nuestros afiliados han ido a pescar solos, indicando la comunidad a la que pertenece dicho lugar. 
 --(no deben salir valores repetidos)
 SELECT DISTINCT l.CAUCE, L.COMUNIDAD
-FROM LUGARES l, CAPTURASSOLOS cs
-WHERE cs.LUGAR= l.LUGAR
-AND UPPER(cs.PEZ)='TENCA';
+FROM LUGARES l JOIN CAPTURASSOLOS cs
+ON cs.LUGAR= l.LUGAR
+WHERE UPPER(cs.PEZ)='TENCA';
 
 --7 Mostrar el nombre y apellido de los afiliados que han conseguido alguna copa. 
 --Los datos deben salir ordenador por la fecha del evento, mostrando primero los eventos más antiguos.
@@ -4105,6 +4107,12 @@ SELECT a.NOMBRE , a.APELLIDOS
 FROM AFILIADOS a, PARTICIPACIONES p
 WHERE a.FICHA= p.FICHA 
 AND p.TROFEO IS NOT NULL;
+
+SELECT a.NOMBRE , a.APELLIDOS
+FROM AFILIADOS a 
+JOIN PARTICIPACIONES p ON a.FICHA= p.FICHA
+JOIN EVENTOS e ON e.EVENTO = p.EVENTO 
+WHERE p.TROFEO IS NOT NULL;
 
 --8 Obtén la ficha, nombre, apellidos, posición y trofeo de todos los participantes del evento 
 --'Super Barbo' mostrándolos según su clasificación.
@@ -4114,20 +4122,18 @@ WHERE a.FICHA=p.FICHA
 AND UPPER(p.EVENTO)='SUPER BARBO' 
 ORDER BY p.POSICION ASC;
 
+SELECT a.FICHA , a.NOMBRE , a.APELLIDOS,p.POSICION, p.TROFEO 
+FROM AFILIADOS a
+JOIN PARTICIPACIONES p ON a.FICHA=p.FICHA
+WHERE UPPER(p.EVENTO)='SUPER BARBO' 
+ORDER BY p.POSICION ASC;
+
 --9 Mostrar el nombre y apellidos de cada afiliado, 
 --junto con el nombre y apellidos de los afiliados que lo han avalado alguna vez como segundo avalador.
-SELECT DISTINCT a.NOMBRE, a.APELLIDOS 
-FROM AFILIADOS a, CAPTURASSOLOS c
-WHERE a.FICHA = c.AVAL2
-OR a.FICHA <> c.AVAL2
-AND a.FICHA IS NULL;
-
-SELECT a.NOMBRE, a.APELLIDOS
-FROM AFILIADOS a
-UNION
-SELECT DISTINCT a.NOMBRE, a.APELLIDOS 
-FROM AFILIADOS a, CAPTURASSOLOS c
-WHERE a.FICHA = c.AVAL2;
+SELECT a.NOMBRE, a.APELLIDOS, a2.NOMBRE, a2.APELLIDOS  
+FROM AFILIADOS a, CAPTURASSOLOS c, AFILIADOS a2
+WHERE a2.FICHA = c.AVAL2
+AND a.FICHA = c.FICHA;
 
 
 --10 Indica todos los eventos en los 
